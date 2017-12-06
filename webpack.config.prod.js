@@ -1,6 +1,7 @@
 import path from 'path';
 import webpack from 'webpack';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
+import webpackMd5Hash from 'webpack-md5-hash';
 
 export default {
   debug: true,
@@ -14,9 +15,12 @@ export default {
   output: {
     path: path.resolve(__dirname, 'dist'),
     publicPath: '/',
-    filename: '[name].js'
+    filename: '[name].[chunkhash].js'
   },
   plugins: [
+    // Hash plugins using MD5 , so that their name changes when the content chnages
+    new webpackMd5Hash(),
+
     // Use CommonChunksPlugin to create separate bundle
     // of vendor libraries so that they cached separately.
     new webpack.optimize.CommonsChunkPlugin({
