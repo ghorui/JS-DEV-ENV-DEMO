@@ -1,7 +1,8 @@
 import path from 'path';
 import webpack from 'webpack';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
-import webpackMd5Hash from 'webpack-md5-hash';
+import WebpackMd5Hash from 'webpack-md5-hash';
+import ExtractTextPlugin from 'extract-text-webpack-plugin';
 
 export default {
   debug: true,
@@ -18,11 +19,14 @@ export default {
     filename: '[name].[chunkhash].js'
   },
   plugins: [
-    // Hash plugins using MD5 , so that their name changes when the content chnages
-    new webpackMd5Hash(),
+    // Generate an external css file with a hash in the filename
+    new ExtractTextPlugin('[name].[contenthash].css'),
 
-    // Use CommonChunksPlugin to create separate bundle
-    // of vendor libraries so that they cached separately.
+    // Hash the files using MD5 so that their names change when the content changes.
+    new WebpackMd5Hash(),
+
+    // Use CommonsChunkPlugin to create a separate bundle
+    // of vendor libraries so that they're cached separately.
     new webpack.optimize.CommonsChunkPlugin({
       name: 'vendor'
     }),
@@ -45,15 +49,16 @@ export default {
       inject: true
     }),
 
-    //eliminate duplicate packages when generating bundle
+    // Eliminate duplicate packages when generating bundle
     new webpack.optimize.DedupePlugin(),
-    //minify js
+
+    // Minify JS
     new webpack.optimize.UglifyJsPlugin()
   ],
   module: {
     loaders: [
-      { test: /\.js$/, exclude: /node_modules/, loaders: ['babel'] },
-      { test: /\.css$/, loaders: ['style', 'css'] }
+      {test: /\.js$/, exclude: /node_modules/, loaders: ['babel']},
+      {test: /\.css$/, loader: ExtractTextPlugin.extract('css?sourceMap')}
     ]
   }
-}
+};
